@@ -1,0 +1,13 @@
+{
+  "name": "shiverview",
+  "version": "5.0.0wip",
+  "authors": [
+    "akasfei <akasfei@gmail.com>"
+  ],
+  "description": "Module-based Node framework which runs multiple web applications on a single Node server.",
+  "main": "server.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT"
+}
