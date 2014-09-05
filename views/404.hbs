@@ -1,0 +1,8 @@
+<h1>404</h1>
+<h3>That's an error.</h3>
+<p>The requested file <br>'{{path}}'<br> was not found on this server. <br>That's all we know.</p>
+
+<script>
+  ga('send', 'event', 'error', '404', '{{path}}', {useBeacon: true});
+  ga('send', 'pageview', {'title': '404'});
+</script>
