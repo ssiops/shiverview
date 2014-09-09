@@ -34,7 +34,7 @@ var error = require('./lib/errHandler.js');
 
 init();
 
-if (cluster.isMaster) {
+if (cluster.isMaster && !process.env.single) {
   if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system clusters.', t);
   // Fork workers.
   for (var i = 0; i < require('os').cpus().length; i++) {
@@ -55,10 +55,16 @@ if (cluster.isMaster) {
     server.use(logger('dev'));
   }
   server.use(compress());
-  server.use(bodyParser());
+  server.use(bodyParser.json());
+  server.use(bodyParser.urlencoded({ extended: false }));
   server.use(multiparty({limit: '8MB'}));
   server.use(cookieParser());
-  server.use(session({store: new RedisStore({client: redisClient}), secret: 'shiverview'}));
+  server.use(session({
+    store: new RedisStore({client: redisClient}),
+    secret: 'shiverview',
+    saveUninitialized: true,
+    resave: true
+  }));
   server.use(serveStatic(__dirname + '/static'));
   server.use(serveStatic(__dirname + '/usercontent'));
   server.use(methodOverride());
@@ -73,12 +79,20 @@ if (cluster.isMaster) {
     if (err) console.log(err);
     server.use(error.s404);
     server.use(error.s500);
-    if (cluster.worker.id === 0)
+    if (process.env.single) {
       http.createServer(server).listen(80, function () {
-        console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, worker.process.pid, new Date().getTime() - t.getTime());
+        console.log("HTTP server booted in %d ms on port 80.", new Date().getTime() - t.getTime());
       });
-    https.createServer(ssl, server).listen(443, function () {
-      console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, worker.process.pid, new Date().getTime() - t.getTime());
-    });
+    } else {
+      if (cluster.worker.id === 0 || typeof ssl === 'undefined')
+        http.createServer(server).listen(80, function () {
+          console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+        });
+      if (typeof ssl !== 'undefined') {
+        https.createServer(ssl, server).listen(443, function () {
+          console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+        });
+      }
+    }
   });
 }
