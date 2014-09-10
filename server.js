@@ -77,6 +77,7 @@ if (cluster.isMaster && !process.env.single) {
 
   man.init(function(err) {
     if (err) console.log(err);
+    server.emit('ready');
     server.use(error.s404);
     server.use(error.s500);
     if (process.env.single) {
