@@ -34,18 +34,9 @@ var error = require('./lib/errHandler.js');
 
 init();
 
-if (cluster.isMaster && !process.env.single) {
+if (cluster.isMaster) {
   if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system clusters.', t);
-  // Fork workers.
-  for (var i = 0; i < require('os').cpus().length; i++) {
-    cluster.fork();
-  }
-  cluster.on('exit', function(worker, code, signal) {
-    if (process.env.verbose) console.log('Worker ' + worker.process.pid + ' died.');
-    cluster.fork();
-  });
-} else {
-  var server = module.exports = express();
+  var server = module.exports = process.server = express();
 
   server.locals.version = pkg.version;
   if (pkg.production === true) {
@@ -81,19 +72,28 @@ if (cluster.isMaster && !process.env.single) {
     server.use(error.s404);
     server.use(error.s500);
     if (process.env.single) {
-      http.createServer(server).listen(80, function () {
+      http.createServer(process.server).listen(80, function () {
         console.log("HTTP server booted in %d ms on port 80.", new Date().getTime() - t.getTime());
       });
     } else {
-      if (cluster.worker.id === 0 || typeof ssl === 'undefined')
-        http.createServer(server).listen(80, function () {
-          console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
-        });
-      if (typeof ssl !== 'undefined') {
-        https.createServer(ssl, server).listen(443, function () {
-          console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
-        });
+      // Fork workers.
+      for (var i = 0; i < require('os').cpus().length; i++) {
+        cluster.fork();
       }
+      cluster.on('exit', function(worker, code, signal) {
+        if (process.env.verbose) console.log('Worker ' + worker.process.pid + ' died.');
+        cluster.fork();
+      });
     }
   });
+} else {
+  if (cluster.worker.id === 0 || typeof ssl === 'undefined')
+    http.createServer(process.server).listen(80, function () {
+      console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+    });
+  if (typeof ssl !== 'undefined') {
+    https.createServer(ssl, process.server).listen(443, function () {
+      console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+    });
+  }
 }
