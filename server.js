@@ -72,7 +72,7 @@ if (cluster.isMaster) {
     server.use(error.s404);
     server.use(error.s500);
     if (process.env.single) {
-      http.createServer(process.server).listen(80, function () {
+      http.createServer(process.server).listen(process.env.port || 80, function () {
         console.log("HTTP server booted in %d ms on port 80.", new Date().getTime() - t.getTime());
       });
     } else {
@@ -88,11 +88,11 @@ if (cluster.isMaster) {
   });
 } else {
   if (cluster.worker.id === 0 || typeof ssl === 'undefined')
-    http.createServer(process.server).listen(80, function () {
+    http.createServer(process.server).listen(process.env.port || 80, function () {
       console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
     });
   if (typeof ssl !== 'undefined') {
-    https.createServer(ssl, process.server).listen(443, function () {
+    https.createServer(ssl, process.server).listen(process.env.sslport || 443, function () {
       console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
     });
   }
