@@ -41,6 +41,7 @@
     "redis": "^0.12.1",
     "serve-static": "^1.5.3",
     "shiverview-boilerplate": "ssiops/shiverview-boilerplate",
+    "shiverview-core-ui": "ssiops/shiverview-core-ui",
     "wrench": "^1.5.8"
   }
 }
