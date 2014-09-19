@@ -74,7 +74,7 @@ man.init(function(err) {
   if (cluster.isMaster) {
     if (process.env.single) {
       http.createServer(process.server).listen(process.env.port || 80, function () {
-        console.log("HTTP server booted in %d ms on port 80.", new Date().getTime() - t.getTime());
+        console.log('HTTP server booted in %d ms on port 80.', new Date().getTime() - t.getTime());
       });
     } else {
       // Fork workers.
@@ -85,15 +85,25 @@ man.init(function(err) {
         if (process.env.verbose) console.log('Worker ' + worker.process.pid + ' died.');
         cluster.fork();
       });
+      if (typeof ssl !== 'undefined') {
+        var redirectServer = express();
+        var sslport = process.env.sslport ? (':' + process.env.sslport) : '';
+        redirectServer.use(function (req, res) {
+          res.redirect(301, 'https://' + req.hostname + sslport + req.originalUrl);
+        });
+        http.createServer(redirectServer).listen(process.env.port || 80, function () {
+          console.log('HTTPS enabled, HTTP traffic will be redirected.');
+        });
+      }
     }
   } else {
-    if (cluster.worker.id === 0 || typeof ssl === 'undefined')
+    if (typeof ssl === 'undefined')
       http.createServer(process.server).listen(process.env.port || 80, function () {
-        console.log("HTTP server cluster #%d@%d booted in %d ms on port 80.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+        console.log('HTTP server cluster #%d@%d booted in %d ms on port %d.', cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime(), process.env.port || 80);
       });
-    if (typeof ssl !== 'undefined') {
+    else {
       https.createServer(ssl, process.server).listen(process.env.sslport || 443, function () {
-        console.log("HTTPS server cluster #%d@%d booted in %d ms on port 443.", cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime());
+        console.log('HTTPS server cluster #%d@%d booted in %d ms on port %d.', cluster.worker.id, cluster.worker.process.pid, new Date().getTime() - t.getTime(), process.env.sslport || 443);
       });
     }
   }

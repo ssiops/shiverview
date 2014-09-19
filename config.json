@@ -1,0 +1,11 @@
+{
+  "shiverview-core-ui": {
+    "analytics_id": "UA-XXXXX-X"
+  },
+  "shiverview-core-users": {
+    "client_id": "your_client_id.apps.googleusercontent.com",
+    "client_secret": "your_client_secret",
+    "redirect_uri": "http://localhost/users/oauth2",
+    "api_key": "your_api_key"
+  }
+}
