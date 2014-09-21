@@ -85,6 +85,30 @@ man.init(function(err) {
         if (process.env.verbose) console.log('Worker ' + worker.process.pid + ' died.');
         cluster.fork();
       });
+      var msgHandler = function (id) {
+        return function (msg) {
+          if (msg.load) {
+            if (process.env.verbose) console.log('Master is loading %s.', msg.load);
+            man.load(msg.load, function (err) {
+              if (process.env.verbose) console.log('Master finished loading %s.', msg.load);
+              if (err) console.log(err);
+            });
+          }
+          if (msg.unload) {
+            if (process.env.verbose) console.log('Master is unloading %s.', msg.unload);
+            man.unload(msg.unload, function (err) {
+              if (process.env.verbose) console.log('Master finished unloading %s.', msg.unload);
+              if (err) console.log(err);
+            });
+          }
+          for (var i in cluster.workers) {
+            if (i != id)
+              cluster.workers[i].send(msg);
+          }
+        }
+      }
+      for (var id in cluster.workers)
+        cluster.workers[id].on('message', msgHandler(id));
       if (typeof ssl !== 'undefined') {
         var redirectServer = express();
         var sslport = process.env.sslport ? (':' + process.env.sslport) : '';
