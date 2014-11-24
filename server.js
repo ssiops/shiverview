@@ -31,6 +31,7 @@ var RedisStore = require('connect-redis')(session);
 
 var Manager = require('./lib/manager.js');
 var error = require('./lib/errHandler.js');
+var Test = require('./lib/tests.js');
 
 if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system clusters.', t);
 
@@ -75,6 +76,17 @@ man.init(function(err) {
     if (process.env.single) {
       http.createServer(process.server).listen(process.env.port || 80, function () {
         console.log('HTTP server booted in %d ms on port 80.', new Date().getTime() - t.getTime());
+        if (process.env.test) {
+          var test = new Test(man);
+          test.execute()
+          .then(function (result) {
+            console.log('Test completed. %d out of %d routes tested.', result.tested.length, result.total.length);
+            process.exit(0);
+          }, function (result) {
+            console.log('Test completed with failures. %d out of %d routes tested, %d failed.' result.tested.length, result.total.length, result.failed.length);
+            process.exit(1);
+          });
+        }
       });
     } else {
       // Fork workers.
