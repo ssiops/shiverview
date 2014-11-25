@@ -45,5 +45,9 @@
     "shiverview-core-ui": "ssiops/shiverview-core-ui",
     "shiverview-core-users": "ssiops/shiverview-core-users",
     "wrench": "^1.5.8"
+  },
+  "devDependencies": {
+    "chalk": "^0.5.1",
+    "request": "^2.48.0"
   }
 }

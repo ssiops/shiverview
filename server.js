@@ -80,10 +80,10 @@ man.init(function(err) {
           var test = new Test(man);
           test.execute()
           .then(function (result) {
-            console.log('Test completed. %d out of %d routes tested.', result.tested.length, result.total.length);
+            console.log('\nTest completed. %d out of %d routes tested.', result.tested.length, result.total.length);
             process.exit(0);
           }, function (result) {
-            console.log('Test completed with failures. %d out of %d routes tested, %d failed.' result.tested.length, result.total.length, result.failed.length);
+            console.log('\nTest completed with failures. %d out of %d routes tested, %d failed.', result.tested.length, result.total.length, result.failed.length);
             process.exit(1);
           });
         }
