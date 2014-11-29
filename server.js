@@ -68,7 +68,10 @@ server.engine('html', require('hbs').__express);
 var man = new Manager(server, pkg);
 
 man.init(function(err) {
-  if (err) console.log(err);
+  if (err) {
+    console.log(err);
+    process.exit(1);
+  }
   server.emit('ready');
   server.use(error.s404);
   server.use(error.s500);
