@@ -3,6 +3,7 @@
 var t = new Date();
 var pkg = require('./package.json');
 var init = require('./lib/init.js');
+var config = require('./config.json');
 
 var assert = require('assert');
 var http = require('http');
@@ -26,7 +27,7 @@ var connectRedis = require('connect-redis');
 var multiparty = require('connect-multiparty');
 var errorHandler = require('errorhandler');
 
-var redisClient = redis.createClient();
+var redisClient = redis.createClient(config.cache.port || 6379, config.cache.host || '127.0.0.1');
 var RedisStore = require('connect-redis')(session);
 
 var Manager = require('./lib/manager.js');
