@@ -37,6 +37,11 @@ if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system 
 
 init();
 
+if (process.env.master) {
+  var workerInit = require('./lib/worker-init.js');
+  workerInit();
+}
+
 var server = module.exports = process.server = express();
 
 server.locals.version = pkg.version;
