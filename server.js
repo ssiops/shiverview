@@ -34,9 +34,9 @@ var Manager = require('./lib/manager.js');
 var error = require('./lib/errHandler.js');
 var Test = require('./lib/tests.js');
 
-if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system clusters.', t);
-
 init();
+
+if (process.env.verbose) console.log('[%s]\nSystem started. Initializing system clusters.', t);
 
 if (process.env.master) {
   var workerInit = require('./lib/worker-init.js');
