@@ -1,6 +1,6 @@
 {
   "name": "shiverview",
-  "version": "5.0.0wip",
+  "version": "5.0.2",
   "authors": [
     "akasfei <akasfei@gmail.com>"
   ],
@@ -9,5 +9,8 @@
   "moduleType": [
     "node"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "resolutions": {
+    "angular": "~1.4.0"
+  }
 }
